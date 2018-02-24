@@ -37,8 +37,7 @@ equations~\cite{Vassilevski2008}.
 Many efforts have been performed to extend their efficiency
 to more general systems, often the direction of a complete
 algebraic approach, where no information on the origin of the problem
-is exploited. In this case, they are called Algebraic MultiGrid (AMG)
-methods~\cite{Stuben2001}.
+is exploited. In this case, they are called Algebraic MultiGrid (AMG) methods~\cite{Stuben2001}.
 
 The linear complexity of AMG preconditioners generally
 translates into algorithmic scalability, i.e., the number of iterations
@@ -57,17 +56,22 @@ for this type of architecture.
 
 In this work, we focus on the choice and implementation of AMG smoothers
 and coarsest-level solvers capable of harnessing the computational power offered by
-multiple GPUs. We consider block-Jacobi smoothers and solvers that use sparse
-approximate inverses to perform the local solves required by each block instead of typical
+a cluster of GPUs. We consider block-Jacobi smoothers and solvers that use sparse
+approximate inverses to perform the local solves required by each block, instead of typical
 incomplete factorization methods. The choice of sparse approximate inverses
 is motivated by the much larger amount of parallelism exposed by
 sparse matrix-vector products as compared to the parallelism available
 in sparse triangular solves. Furthermore, suitable implementations of sparse approximate
 inverse preconditioners have already proved their efficiency on a single GPU (see, e.g.,
-\cite{BERTACCINI2016693}). The smoothers and local solvers are used within
-the AMG framework offered by the MLD2P4 package of preconditioners~\cite{mld-toms},
-and are analyzed in terms of both execution speed and algorithmic scalability.
-To the best of our knowledge, the slected smoothers and local solvers have not been
+\cite{BERTACCINI2016693, Lukash:2012}). 
+In our work, the smoothers and local solvers are used within
+the AMG framework offered by the MLD2P4 package of preconditioners~\cite{mld-toms} 
+and exploiting sparse matrix data structures and Krylov solvers from the PSBLAS library~\cite{psblas3}. 
+We conducted an extensive set of weak scalability tests on the JURECA supercomputer at the JŸlich Supercomputing Centre (JSC), 
+using a groundwater modelling application developed at JSC. 
+
+%and are analyzed in terms of both execution speed and algorithmic scalability.
+To the best of our knowledge, the selected smoothers and local solvers have not been
 considered in other AMG preconditioners tailored for GPUs \cite{} \textbf{Aggiungere biblio:
 Bell, Dalton, Olson; Park, Smelianskiy, Yang, ...; Rupp, Weinbub}.
 
@@ -80,13 +84,9 @@ the best possible efficiency during the solution phase even at the expense of a
 longer setup time, because this will be amortized over multiple
 solution steps.
 
-This article is organized as follows. In Section~\ref{AMG} we briefly describe AMG preconditioners,
+The remainder of this article is organized as follows. In Section~\ref{AMG} we briefly describe AMG preconditioners,
 identifying their main sparse matrix kernels. In Section~\ref{SLA-GPU}, we discuss the main issues
 concerning the implementation of these kernels on GPUs. In Section~\ref{results} we illustrate the
-behaviour of the AMG preconditioners on a cluster ofon linear systems coming from a
-a groundwater modelling applications.
-
-
-
-
-
+behaviour of the AMG preconditioners on a cluster of GPUs on linear systems coming from a
+a groundwater modelling applications. 
+We conclude in Section~\ref{sec:concl} with some final remarks.  
