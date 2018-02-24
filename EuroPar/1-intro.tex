@@ -47,7 +47,10 @@ translates into algorithmic scalability, i.e., the number of iterations
 of AMG-preconditioned Krylov solvers does not depend on the size of the
 problem. This allows efficient parallel implementations on multiple CPUs,
 for example through a domain decomposition approach, in which rows of
-the matrix are assigned to different computing nodes.
+the matrix are assigned to different computing nodes. 
+Because of their linear complexity and parallelization scalability, AMG preconditioners are expected to be a solver of choice 
+in the emerging exascale scenario~\cite{Park:2015}.
+
 The diffusion of General Purpose Graphics Processing Units (GPGPUs),
 currently found in many of the fastest supercomputers on the Top 500 list
 (\url{https://www.top500.org/lists/}), requires the exposition of a high
@@ -68,7 +71,7 @@ in sparse triangular solves. Furthermore, suitable implementations of sparse app
 inverse preconditioners have already proved their efficiency on a single GPU (see, e.g.,
 \cite{BERTACCINI2016693,Lukash:2012}). 
 In our work, the smoothers and local solvers are used within
-the AMG framework offered by the MLD2P4 package of preconditioners~\cite{mld-toms,Dambra:2007} 
+the AMG framework offered by the MLD2P4 package of preconditioners~\cite{Dambra:2007,mld-toms} 
 and exploiting sparse matrix data structures and Krylov solvers from
 the PSBLAS  library~\cite{PSBLAS3}. 
 We conducted an extensive set of weak scalability tests on the JURECA supercomputer at the J\"ulich Supercomputing Centre (JSC), 
@@ -77,16 +80,18 @@ To quantify the gain in efficiency and performance using the cluster of GPUs, we
 Our results show scalability up to 128 GPUs and 256 millions equations.
 
 %and are analyzed in terms of both execution speed and algorithmic scalability. 
-Some research efforts have been devoted to study the computation of preconditions on GPUs, e.g.,~\cite{Dehnavi:2013}, 
+Previous research efforts have been devoted to study the computation of preconditions on 
+GPUs, e.g.,~\cite{BellDaltonOlson:2012,Dehnavi:2013,Emans:2012,Gandham:2014,Haase:2010,Naumov:2014,Wagner:2012}, 
 showing the acceleration that can be achieved by exploiting GPUs. 
 %
-To the best of our knowledge, the selected AMG smoothers and local solvers we employ in they work 
-have not been considered in other AMG preconditioners tailored for GPUs~\cite{BellDaltonOlson:2012}. 
+To the best of our knowledge, the selected AMG smoothers and local solvers we employ in this work 
+have not been considered in other AMG preconditioners tailored for GPUs~\cite{BellDaltonOlson:2012,Naumov:2014,Wagner:2012}. 
 %\textbf{Aggiungere biblio:
 %Bell, Dalton, Olson; Park, Smelianskiy, Yang, ...; Rupp, Weinbub}. 
-Furthermore, most results have been so far presented on a single GPU; 
-for example, Richter et al.~\cite{Richter:2014} presented the implementation for discrete elliptic field problems 
-using the CUSP library. 
+Furthermore, some results have been presented either on a single GPU %(e.g.,~\cite{Richter:2014}) 
+or a small-scale GPU cluster (e.g.,~\cite{Emans:2012,Haase:2010}). %up to 16 nodes  
+%e.g., Richter et al.~\cite{Richter:2014} presented the implementation for discrete elliptic field problems 
+%using the CUSP library. 
 
 In this work, we do not consider the setup phase of the preconditioner,
 which will be the subject of future work. 
