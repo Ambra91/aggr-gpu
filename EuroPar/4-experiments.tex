@@ -11,7 +11,7 @@ J\"ulich Supercomputing Centre (JSC), concerning the numerical simulation
 of the filtration of 3D incompressible single-phase flows through
 anisotropic porous media. It is an elliptic equation with no flow
 boundary conditions;  the linear systems stem from the discretization
-of the equation performed by a cell-centered finite colume scheme
+of the equation performed by a cell-centered finite column scheme
 (two-point flux approximation) on a Cartesian grid, with nonzero
 entries distributed over seven diagonals. In these tests, we will
 consider a homogeneous permeability tensor;  this application comes
@@ -32,9 +32,9 @@ plugin),  compiled with  GNU compilers (C and Fortran) version 5.4.0,
 MVAPICH2 version 2.3 and with CUDA 8.0.61. 
 
 The linear systems are solved using the Conjugated Gradient (CG) method.
-The stopping criterion is based on the ratio bewteen the 2-norms of the
+The stopping criterion is based on the ratio between the 2-norms of the
 residual and the right-hand side vectors: the method halts if this ratio becomes smaller than $10^{-6}$).
-CG is used in conjuction with a V-cycle preconditioner, for
+CG is used in conjunction with a V-cycle preconditioner, for
 which we consider two different configurations. In the first case the
 V-cycle preconditioner applies, as pre- and post-smoother, 1 sweep of
 the block-Jacobi method with INVK as a solver. In the
@@ -55,7 +55,7 @@ allows us to quantify the gain in efficiency in using GPUs.
 \caption{Weak scalability, solve time\label{fig:solve_time}}
 \end{figure}
 The graphs in Fig.~\ref{fig:solve_time} depict the solution time for
-both CPU and GPU verisons; they show a relatively flat 
+both CPU and GPU versions; they show a relatively flat 
 behaviour up until 64 nodes for both JAC-INVK and INVK-INVK variants,
 and can be considered quite satisfactory in terms of weak scalability.
 However a more detailed analysis is necessary to fully elucidate the
@@ -81,18 +81,18 @@ iteration of the method.
  However to translate this into a flat
 solution time it is necessary that the number of iterations remains
 constant. To get a complete picture it is necessary to look in detail
-at  tables~\ref{gpu-invk} and~\ref{gpu-jac}. In the tables we show
+at  Tables~\ref{gpu-invk} and~\ref{gpu-jac}. In the tables, we show
 respectively the number of processing elements (CPU cores or GPU
 devices), the number of levels in the multilevel hierarchy, the time
 for setup in seconds, then the time to solution and time per iteration
-(in seconds and millseconds), for CPUs and GPUs respectively; finally,
+(in seconds and milliseconds), for CPUs and GPUs respectively; finally,
 we show the solution speedup. The time 
-to setup is essentially identical because  almost all the
-setup process is currently executed  on CPUs; in all cases the number
+to setup is essentially identical, because  almost all the
+setup process is currently executed  on CPUs; in all cases, the number
 of iterations to convergence is identical on CPUs and GPUs. 
 
-There are two lines for the tests at 128 devices in each table. In
-the first line is obtained letting the aggregation algorithm run with
+There are two lines for the tests at 128 devices in each table. 
+The first line is obtained letting the aggregation algorithm run with
 default arguments; in this case the preconditioner uses a hierarchy
 with 5 levels and achieves a number of iterations equal to or less than
 that for 32 and 64 devices, but because there are 5 levels, the time
@@ -104,7 +104,7 @@ time is obtained with 4 levels.
 
 In summary, the aggregation algorithm is capable of obtaining very
 good algorithmic scalability, but in some cases at the expense of time
-per iteration, so that it does not necessarily correspond to the best
+per iteration, so that it does not necessarily correspond to the best 
 solution time. 
 Additional work will be required to design aggregation
 strategies capable of obtaining a better trade-off with as little user
