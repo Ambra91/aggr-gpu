@@ -57,33 +57,32 @@ Universit\`a degli Studi della Campania ``Luigi Vanvitelli'', Caserta, Italy
 \maketitle              % typeset the title of the contribution
 
 \begin{abstract}
-Many scientific applications require the solution of large and sparse linear systems of equations using iterative methods, this operation accounting for a large percentage of the computing time. In these cases, the choice of the preconditioner is crucial for the convergence of the iterative method.
-Given the broad range of applications, great effort has been put in the development of efficient  preconditioners ensuring algorithmic scalability: in this sense, multigrid methods have been proved to be particularly promising.
-Additionally, the advent of GPUs, now found in many of the fastest supercomputers, poses the problem of implementing efficiently these algorithms on highly parallel architectures; this is made more difficult by the fact that the solution of sparse triangular systems, a common kernel in many types of preconditioners, is extremely inefficient on GPUs. 
-
-In this paper, we use the PSBLAS and MLD2P4 libraries to explore various issues that affect the efficiency of multilevel preconditioners on GPUs, both in terms of execution speed and exploitation of computational cores, as well as the algorithmic efficiency in guaranteeing convergence to solution in a number of iterations independent of the parallelism degree. 
-We investigate these issues 
-%are investigated 
-in the context of linear systems arising from groundwater modeling application of the filtration of 3D incompressible single-phase flows through %anisotropic 
-porous media.
-
+Many scientific applications require the solution of large and sparse linear systems of equations using Krylov
+subspace methods; in these cases, the choice of a good preconditioner may be crucial for the convergence
+of the Krylov solver. Algebraic multigrid methods are widely used as preconditioners, because of their optimal
+computational cost and their algorithmic scalability. The wide availability of GPUs, now found in many
+of the fastest supercomputers, poses the problem of implementing efficiently these algorithms on
+high-throughput processors. In this work we focus on the choice and implementation of smoothers capable
+of exploiting the computational power of clusters of GPUs. We consider block-Jacobi methods using sparse
+approximate inverses in the solve phase concerning the local blocks. The choice of approximate inverses 
+instead of sparse matrix factorizations is driven by the large amount of parallelism exposed by the matrix-vector
+product as compared to the solution of large triangular systems on GPUs. The selected smoother and solvers are
+implemented within the algebraic multigrid preconditioning framework provided by the MLD2P4 library, using sparse
+matrix data structures and Krylov solvers from the PSBLAS library. Their behaviour is illustrated
+in terms of execution speed and exploitation of computational cores, as well as of algorithmic scalability,
+on a test case concerning grounwater modelling, provided by J\"ulich Supercomputing Center within the
+Horizon 2020 Project EoCoE.
 \end{abstract}
 %
 \input{1-intro.tex}
 %
 \input{2-amg-prec.tex}
-
 %
 \input{3-gpu-linalg.tex}
-% \section{Sparse linear algebra on GPUs}
-% Sparse linear algebra on GPU e limitazioni del nucleo risoluzione di sistemi triangolari, uso delle inverse approssimate e focus sulla INVK di PSBLAS.
+%
 \input{4-experiments.tex}
-
+%
 \input{5-concl.tex}
-%%%%%%% ACK
-%\subsection*{Acknowledgments}\label{sec:Acknowledgments}
-
-
 %
 % ---- Bibliography ----
 %

@@ -1,12 +1,16 @@
-\section{Results}
+\section{Results\label{results}}
 
-We illustrate the behaviour of the AMG preconditioner and the INVK
-solver on GPUs  by showing the results obtained on a linear system
+We illustrate the behaviour of the MG preconditioner for GPUs described so far,
+which exploits the INVK sparse approximate inverse solver. This approximate
+inverse is obtained by the inversion of triangular
+factors based on a positional drop strategy.
+\textbf{reference}.
+In particular, we show the results obtained on a linear system
 arisen from a groundwater modelling application developed at the
-Juelich Supercomputing Centre (JSC)  dealing with numerical simulation
+J\"ulich Supercomputing Centre (JSC), concerning the numerical simulation
 of the filtration of 3D incompressible single-phase flows through
 anisotropic porous media. It is an elliptic equation with no flow
-boundary conditions;  the linear systems arises from the discretization
+boundary conditions;  the linear systems stem from the discretization
 of the equation performed by a cell-centered finite colume scheme
 (two-point flux approximation) on a Cartesian grid, with nonzero
 entries distributed over seven diagonals. In these tests, we will
@@ -18,8 +22,8 @@ We performed weak scalability tests using approximately 2 millions
 equations per process; thus  the total dimension ranges from 2
 millions up to 256 millions equations. 
 
-The experiments were performed on  the JURECA supercomputer at the
-Juelich Supercomputing Centre (JSC).  Each GPU compute node consists
+The experiments were performed on  the JURECA supercomputer at JSC.
+Each GPU compute node consists
 of two NVIDIA Tesla K80 GPUs with a dual-GPU design, for a total of
 four available GPU devices per compute nodes.   
 We used PSBLAS 3.5 (combined with its extension plugin for extended
@@ -27,24 +31,21 @@ matrix formats and GPU plugin) and MLD2P4 2.1 (combined with AINV
 plugin),  compiled with  GNU compilers (C and Fortran) version 5.4.0,
 MVAPICH2 version 2.3 and with CUDA 8.0.61. 
 
-The linear systems are solved using Conjugated Gradient (CG) and the
-stopping criterion is based on the ratio bewteen 2-norms of the
-residual and the right-hand side vector (when smaller than
-$10^{-6}$). CG is use in conjuction with a V-cycle preconditioner, for
+The linear systems are solved using the Conjugated Gradient (CG) method.
+The stopping criterion is based on the ratio bewteen the 2-norms of the
+residual and the right-hand side vectors: the method halts if this ratio becomes smaller than $10^{-6}$).
+CG is used in conjuction with a V-cycle preconditioner, for
 which we consider two different configurations. In the first case the
-V-cycle 
-preconditioner applies 1 pre and post sweep of Block Jacobi smoother
-with INVK (approximate inverse based on the inversion of triangular
-factors based on a positional drop strategy) as a solver. In the
-second configuration it applies 2 per and post sweeps of Jacobi
-solver. In both cases, we use 10 sweeps of Block Jacobi with INVK  as
-coarsest level solver.   The multilevel hierarchy was built with a
+V-cycle preconditioner applies, as pre- and post-smoother, 1 sweep of
+the block-Jacobi method with INVK as a solver. In the
+second configuration it applies, as pre- and post-smoother,, 2 sweep
+of the Jacobi solver. In both cases, we use 10 sweeps of Block Jacobi with INVK  as
+coarsest level solver.   The multilevel hierarchy is built with a
 decoupled smoothed aggregation algorithm. 
 
 For each configuration, we ran tests on CPUs only, with matrices in
 CSR format, and using CPUs+GPUs, with matrices in ELLPACK format. This
 allows us to quantify the gain in efficiency in using GPUs.   
-
 
 
 \begin{figure}
@@ -53,7 +54,7 @@ allows us to quantify the gain in efficiency in using GPUs.
 \end{center}
 \caption{Weak scalability, solve time\label{fig:solve_time}}
 \end{figure}
-The graphs in fig.~\ref{fig:solve_time} depict the solution time for
+The graphs in Fig.~\ref{fig:solve_time} depict the solution time for
 both CPU and GPU verisons; they show a relatively flat 
 behaviour up until 64 nodes for both JAC-INVK and INVK-INVK variants,
 and can be considered quite satisfactory in terms of weak scalability.
@@ -63,13 +64,13 @@ behaviour of the application.
 \begin{figure}[h!]
 \centering
 \includegraphics[width=1\textwidth]{graf_time_per_it3a.png}
-\caption{Time per iteration Jacobi-INVK\label{fig:time_per_it_a}}
+\caption{Jacobi-INVK, time per iteration\label{fig:time_per_it_a}}
 \end{figure}
 
 \begin{figure}[h!]
 \centering
 \includegraphics[width=1\textwidth]{graf_time_per_it3b.png}
-\caption{Time per iteration INVK-INVK\label{fig:time_per_it_b}}
+\caption{INVK-INVK, time per iteration\label{fig:time_per_it_b}}
 \end{figure}
 
 In the two figures~\ref{fig:time_per_it_a} and~\ref{fig:time_per_it_b}

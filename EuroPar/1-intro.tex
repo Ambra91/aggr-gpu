@@ -1,94 +1,92 @@
 \section{Introduction}
 
 
-We are concerned with the solution of linear sysutems 
+Scientific applications often require the solution of
+linear systems
  \begin{equation}
  Ax = b, \qquad x,b \in \Bbb{R}^n,\, A\in \Bbb{R}^{n\times n},
 \label{eq:linsys}
 \end{equation}
-where the matrix $A$ is large and sparse;  \emph{large}  in our
-context means millions or even billions of unknowns, whereas
-\emph{sparse} means that most coefficients in $A$ are zero, and it is
+where the matrix $A$ is large and sparse. In our context, \emph{large}
+means millions or even billions of unknowns, whereas
+\emph{sparse} means that most coefficients in $A$ are zero and it is
 convenient to employ special storage formats. In many applications,
 and specifically in the test cases discussed in this paper, the matrix
-$A$ is also symmetric and positive definite, or SPD. 
+$A$ is also symmetric and positive definite. 
 
-Many popular algorithms for large and sparse systems are
-\emph{iterative}, i.e. starting from an initial guess $x_0$ they build
-a sequence of approximations  $x_1,x_2,\dots,x_i$ that (hopefully)
-converges to the solution of~\ref{eq:linsys}; since the time to
-solution is determined by the product between the number of iterations
-and the time per iteration, it is clear that the most effective
-methods will be the ones that achieve an optimal trade-off between the
-method complexity and its speed of convergence. Currently the most
-popular solvers  are those based on  Krylov subspace 
-projection methods~\cite{MR1990645}. 
-
-A critical feature of practical methods is the use of preconditioners,
-i.e transformation of the type 
+The most widely used solvers for systems of this type are
+Krylov subspace methods~\cite{MR1990645}.
+Their time to solution is determined by the number
+of iterations performed and by the time per iteration, and hence their 
+efficiency is the result of a tradeoff between
+iteration complexity and speed of convergence. 
+A critical feature is the application of preconditioning,
+corresponding, e.g., to a transformation of the form
 \begin{equation}\label{eq:preclinsys}
-M^{-1}Ax=M^{-1}b.
+M^{-1}Ax=M^{-1}b,
 \end{equation} 
-that aim at improving the spectral qualities of the resulting system
-matrix, and therefore achieve better convergence; note that the
-product $M^{-1}A$ is usually  not computed explicitly. 
+which is aimed at speeding up convergence through the improvement of
+the ``quality'' of the system matrix. Note that the
+product $M^{-1}A$ is not computed explicitly, but the Krylov solvers
+are modified so that it is obtained by performing at each iteration
+the computation of $M^{-1} v$, where $v$ is a suitable vector.
 
-When dealing with preconditioned iterations, we need to find the
-optimal tradeoff between the following factors:
-\begin{itemize}
-\item The setup time of the iteration/preconditioner;
-\item The runtime  efficiency of the kernels necessary to apply the 
-  preconditioner at each iteration; 
-\item The reduction in the number of iterations to convergence that
-  can be achieved;
-\item The sensitivity of the method/preconditioner pair to the usage
-  conditions, e.g. the number of computational cores on which the
-  program is run. 
-\end{itemize}
-An ideal solver/preconditioner pair will achieve convergence in few
-iterations, each one failry cheap, with the number of iterations to
-convergence independent of the degree of parallelism desired. Note
-that in situations where we need to solve multiple linear systems with
-the same coefficient matrix, it is desirable to obtain the best
-possible efficiency during the solution phase even at the expense of a
+Multigrid methods are widely used as preconditioners, because they are optimal,
+in the sense that their computational cost grows linearly with the number of unknowns
+when the linear systems come from the discretization of elliptic partial differential
+equations~\cite{Vassilevski2008}.
+Many efforts have been performed to extend their efficiency
+to more general systems, often the direction of a complete
+algebraic approach, where no information on the origin of the problem
+is exploited. In this case, they are called Algebraic MultiGrid (AMG)
+methods~\cite{Stuben2001}.
+
+The linear complexity of AMG preconditioners generally
+translates into algorithmic scalability, i.e., the number of iterations
+of AMG-preconditioned Krylov solvers does not depend on the size of the
+problem. This allows efficient parallel implementations on multiple CPUs,
+for example through a domain decomposition approach, in which rows of
+the matrix are assigned to different computing nodes.
+The diffusion of General Purpose Graphics Processing Units (GPGPUs),
+currently found in many of the fastest supercomputers on the Top 500 list
+(\url{https://www.top500.org/lists/}), requires the exposition of a high
+degree of parallelism, because GPUs are high-throughput many-core processors.
+Since AMG methods are obtained by combining different components (smoother,
+coarsening algorithm, coarsest-level solver, restriction and prolongation operators),
+a full exploitation of GPU capabilities requires each component to be optimized
+for this type of architecture.
+
+In this work, we focus on the choice and implementation of AMG smoothers
+and coarsest-level solvers capable of harnessing the computational power offered by
+multiple GPUs. We consider block-Jacobi smoothers and solvers that use sparse
+approximate inverses to perform the local solves required by each block instead of typical
+incomplete factorization methods. The choice of sparse approximate inverses
+is motivated by the much larger amount of parallelism exposed by
+sparse matrix-vector products as compared to the parallelism available
+in sparse triangular solves. Furthermore, suitable implementations of sparse approximate
+inverse preconditioners have already proved their efficiency on a single GPU (see, e.g.,
+\cite{BERTACCINI2016693}). The smoothers and local solvers are used within
+the AMG framework offered by the MLD2P4 package of preconditioners~\cite{mld-toms},
+and are analyzed in terms of both execution speed and algorithmic scalability.
+To the best of our knowledge, the slected smoothers and local solvers have not been
+considered in other AMG preconditioners tailored for GPUs \cite{} \textbf{Aggiungere biblio:
+Bell, Dalton, Olson; Park, Smelianskiy, Yang, ...; Rupp, Weinbub}.
+
+We do not consider the setup phase of the preconditioner,
+which will be the subject of future work. Of course, an efficient
+AMG setup on multiple GPUs is important for the overall efficiency of the
+preconditioner. Nevertheless, in situations where we need to solve multiple
+linear systems with the same coefficient matrix, it is desirable to obtain
+the best possible efficiency during the solution phase even at the expense of a
 longer setup time, because this will be amortized over multiple
-solution steps. 
+solution steps.
 
-To implement a linear system solver on a parallel computing
-architecture, we typically use a \emph{domain decomposition} approach,
-in which subsets of the computational domain are assigned to different
-computing nodes. Domain decomposition requires to achieve a number of
-trade-offs among multiple factors:
-\begin{itemize}
-\item Many preconditioners, e.g. Gauss-Seidel or incomplete
-  factorizations, employ kernels for the solution to sparse triangular
-  systems; in using sparse triangular solvers, we normally  want the
-  sparsity pattern to be of the same order as that of the original
-  coefficient matrix;
-\item However, the amount of parallelism available in a sparse
-  triangular solution is dependent on the number of nonzeros in the
-  sparse factors, and is usually very small;
-\item To overcome this issue, most preconditioners use a Block Jacobi
-  or hybrid Gauss-Seidel strategy, in which the sparse triangular
-  solve is used only within the local subdomain, while employing a
-  global Jacobi-like correction;
-\item Unfortunately, the convergence properties of these local schemes
-  deteriorate with increased parallelism.
-\end{itemize}
-The last phenomenon is often described as a loss of \emph{algorithmic
-  scalability}, i.e., the ability to obtain a convergence history that
-is independent of the degree of parallelism. 
-Good preconditioners such as those based on  incomplete factorizations
-are often very efficient in serial  computations but suffer from
-bad algorithmic scalability. 
-Algebraic Multigrid  preconditioners, offer
-a way to recover algorithmic scalability, keeping the convergence
-quality invariant with the degree of parallelism. 
+This article is organized as follows. In Section~\ref{AMG} we briefly describe AMG preconditioners,
+identifying their main sparse matrix kernels. In Section~\ref{SLA-GPU}, we discuss the main issues
+concerning the implementation of these kernels on GPUs. In Section~\ref{results} we illustrate the
+behaviour of the AMG preconditioners on a cluster ofon linear systems coming from a
+a groundwater modelling applications.
 
-Finding the preconditioning combination that gives the best overall
-performance is thus a very complex enterprise. In this context, the
-ability to combine multiple options in a flexible framework such as
-the one we described in~\cite{mld-toms} is an essential ingredient. 
 
 
 

@@ -1,28 +1,17 @@
-\section{Sparse Linear Algebra and Preconditioners on GPUs}
+\section{Sparse Linear Algebra and Preconditioners on GPUs\label{SLA-GPU}}
 
-General Purpose Graphics Processing Units (GPGPUs)~\cite{Luebke06}  
-are today an established and attractive choice in the world of
-scientific computing, found in many among the fastest supercomputers
-on the Top~500 list, and offered in standard Cloud infrastructure
-services, e.g. in  Amazon EC2. It is therefore not surprising that
-they are at the focus of many research efforts revolving around the
-efficient implementation of scientific software, including solvers for
-sparse linear system of equations. 
+%General Purpose Graphics Processing Units (GPGPUs)~\cite{Luebke06}  
+%are today an established and attractive choice in the world of
+%scientific computing, found in many among the fastest supercomputers
+%on the Top~500 list, and offered in standard Cloud infrastructure
+%services, e.g. in  Amazon EC2. It is therefore not surprising that
+%they are at the focus of many research efforts revolving around the
+%efficient implementation of scientific software, including solvers for
+%sparse linear system of equations. 
 
-
-From a  software point of view, iterative methods employ the matrix $A$ 
-to perform matrix-vector products  $y\gets Ax$.
-The SpMV kernel is well-known to be a memory-bounded application;
-and  its bandwidth usage  is strongly dependent on both the input
-matrix and on the underlying computing platform(s). For a detailed
-overview of the implementation issues and a survey of available
-techniques for this kernel on GPUs,
-see~\cite{Filippone:2017:SMM:3034774.3017994}.    
-
-Additional considerations are necessary when implementing
-preconditioning operations on GPUs. First of all, implementing the
-solution of sparse triangular systems on GPUs is extremely difficult.
-As an example, the conjugate gradient preconditioned with incomplete
+As previously mentioned, implementing the
+solution of sparse triangular systems on GPUs is very difficult.
+As an example, the conjugate gradient preconditioned with the incomplete
 LU available in CUDA CuSPARSE since version 4.0 
 is reported in~\cite{Naumov11} as achieving at best a speedup factor
 of about 2 over a standard CPU implementation. The main reason is that
@@ -30,26 +19,35 @@ the GPU requires a massive amount of data parallelism to be exploited,
 and in the sparse triangular factors the amount of available
 parallelism is limited by the sparsity. It is therefore appealing to
 use preconditioners employing matrix-vector products as their main
-kernel, among them  Point-Jacobi iterations and preconditioning
-through sparse approximation of the   inverses.
+kernel, among them point-Jacobi iterations and sparse approximate inverses.
 For a discussion of sparse approximate inverses on GPUs 
 see~\cite{BERTACCINI2016693}. 
 
-The implementation of the multilevel preconditioners for which we will
+It is well known that the SpMV kernel is memory-bound
+and  its bandwidth usage  is strongly dependent on both the input
+matrix and on the underlying computing platform(s). For a detailed
+overview of its implementation issues and a survey of available
+techniques on GPUs, see~\cite{Filippone:2017:SMM:3034774.3017994}.
+\textbf{Sembra quasi che SpMV non sia utile, mentre andrebbe valorizzato, perche' e'
+il kernel centrale nei metodi di Krylov e nell'AMG qui considerato.}
+
+The implementation of the AMG preconditioners for which we will
 present results in this paper is based on MLD2P4~\cite{mld-toms} and
 PSBLAS~\cite{psblas3}. Thanks to the modular architecture of both
 packages, it is possible to define \emph{plugins} for 
 \begin{itemize}
-\item Operators on the GPU, including sparse matrix-vector product
+\item operators on the GPU, including sparse matrix-vector product
   supporting multiple storage formats and vector-vector operations;
-\item Approximate inverses as local solvers.
+\item approximate inverses as local solvers.
 \end{itemize}
 By combining these ingredients in a multilevel framework we can obtain
 interesting scalability results. 
 
+\textbf{Mi sembra che di seguito ci soffermiamo piu' sugli ostacoli che sui benefici dell'implementazione
+basata sul prodotto mat-vet. Sarebbe imnteressante dire qualcosa in piu' sull'implementazione, anche se matvet e ainv sono gia' stati spiegati in un altro paper.}
 Three additional practical obstacles must be mentioned here. 
 First of all,  because the allocation of memory
-on the GPU is an expennse synchronization point,  the
+on the GPU is an expensive synchronization point,  the
 memory space for internal work areas must be preallocated for all
 invocations  of the preconditioner; allocation of auxiliary data areas at
 each invocation of the prevonditioner is perfectly doable on the CPU
