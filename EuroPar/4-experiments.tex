@@ -58,7 +58,7 @@ The graphs in Fig.~\ref{fig:solve_time} depict the solution time for
 both CPU and GPU versions; they show a relatively flat 
 behaviour up until 64 nodes for both JAC-INVK and INVK-INVK variants,
 and can be considered quite satisfactory in terms of weak scalability.
-However a more detailed analysis is necessary to fully elucidate the
+However, a more detailed analysis is necessary to fully elucidate the
 behaviour of the application. 
 
 \begin{figure}[h!]
@@ -78,8 +78,8 @@ we see that the time per iteration with the GPUs has a very flat profile between
 and 64 nodes; this reflects a very good weak scalability within each
 iteration of the method.
 
- However to translate this into a flat
-solution time it is necessary that the number of iterations remains
+ However, to translate this into a flat
+solution time, it is necessary that the number of iterations remains
 constant. To get a complete picture it is necessary to look in detail
 at  Tables~\ref{gpu-invk} and~\ref{gpu-jac}. In the tables, we show
 respectively the number of processing elements (CPU cores or GPU
@@ -110,9 +110,6 @@ Additional work will be required to design aggregation
 strategies capable of obtaining a better trade-off with as little user
 intervention as possible; some possible directions are outlined
 in~\cite{bcm-toms}.  
-
-
-
 
 \iffalse
 \begin{table}[h!]
