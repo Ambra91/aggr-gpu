@@ -70,16 +70,17 @@ and exploiting sparse matrix data structures and Krylov solvers from the PSBLAS 
 We conducted an extensive set of weak scalability tests on the JURECA supercomputer at the JŸlich Supercomputing Centre (JSC), 
 using a groundwater modelling application developed at JSC. 
 To quantify the gain in efficiency and performance using the cluster of GPUs, we also ran tests only on CPUs. 
-
+Our results show scalability up to 128 GPUs and 256 millions equations.
 
 %and are analyzed in terms of both execution speed and algorithmic scalability.
-To the best of our knowledge, the selected smoothers and local solvers have not been
+To the best of our knowledge, the selected AMG smoothers and local solvers have not been
 considered in other AMG preconditioners tailored for GPUs \cite{} \textbf{Aggiungere biblio:
 Bell, Dalton, Olson; Park, Smelianskiy, Yang, ...; Rupp, Weinbub}.
 
-We do not consider the setup phase of the preconditioner,
-which will be the subject of future work. Of course, an efficient
-AMG setup on multiple GPUs is important for the overall efficiency of the
+\textbf{V: spostare nelle conclusioni?} 
+In this work, we do not consider the setup phase of the preconditioner,
+which will be the subject of future work. 
+Of course, an efficient AMG setup on multiple GPUs is important for the overall efficiency of the
 preconditioner. Nevertheless, in situations where we need to solve multiple
 linear systems with the same coefficient matrix, it is desirable to obtain
 the best possible efficiency during the solution phase even at the expense of a
