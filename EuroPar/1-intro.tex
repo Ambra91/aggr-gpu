@@ -1,6 +1,6 @@
 \section{Introduction}
 
-Scientific applications often require the solution of
+Many engineering and scientific applications often require the solution of
 linear systems
  \begin{equation}
  Ax = b, \qquad x,b \in \Bbb{R}^n,\, A\in \Bbb{R}^{n\times n},
@@ -13,22 +13,23 @@ convenient to employ special storage formats. In many applications,
 and specifically in the test cases discussed in this paper, the matrix
 $A$ is also symmetric and positive definite. 
 
-The most widely used solvers for systems of this type are
-Krylov subspace methods~\cite{MR1990645}.
+The solution of such systems is achieved by using either direct or iterative methods. 
+However, for large and sparse linear systems, direct methods are  difficult to implement in parallelbecause of their recursive nature and often suffer from high computational complexity~\cite{Templates}.  
+Therefore, a more viable alternative is to use iterative solvers and Krylovsubspace methods are the most widely used class of these solvers~\cite{MR1990645}. 
+%The most widely used solvers for systems of this type are Krylov subspace methods~\cite{MR1990645}.
 Their time to solution is determined by the number
 of iterations performed and by the time per iteration, and hence their 
-efficiency is the result of a tradeoff between
-iteration complexity and speed of convergence. 
+efficiency is the result of a tradeoff between iteration complexity and speed of convergence. 
 A critical feature is the application of preconditioning,
 corresponding, e.g., to a transformation of the form
 \begin{equation}\label{eq:preclinsys}
 M^{-1}Ax=M^{-1}b,
 \end{equation} 
-which is aimed at speeding up convergence through the improvement of
+which is aimed at speeding up the convergence of Krylov methods through the improvement of
 the ``quality'' of the system matrix. Note that the
 product $M^{-1}A$ is not computed explicitly, but the Krylov solvers
 are modified so that it is obtained by performing at each iteration
-the computation of $M^{-1} v$, where $v$ is a suitable vector.
+the computation of $M^{-1} v$, where $v$ is a suitable vector. 
 
 Multigrid methods are widely used as preconditioners, because they are optimal,
 in the sense that their computational cost grows linearly with the number of unknowns
@@ -75,7 +76,7 @@ Our results show scalability up to 128 GPUs and 256 millions equations.
 
 %and are analyzed in terms of both execution speed and algorithmic scalability.
 To the best of our knowledge, the selected AMG smoothers and local solvers have not been
-considered in other AMG preconditioners tailored for GPUs~\cite{BellDaltonOlson:2012}. 
+considered in other AMG preconditioners tailored for GPUs~\cite{BellDaltonOlson:2012, }. 
 
 %\textbf{Aggiungere biblio:
 %Bell, Dalton, Olson; Park, Smelianskiy, Yang, ...; Rupp, Weinbub}. 
