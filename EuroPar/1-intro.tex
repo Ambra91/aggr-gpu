@@ -63,21 +63,26 @@ is motivated by the much larger amount of parallelism exposed by
 sparse matrix-vector products as compared to the parallelism available
 in sparse triangular solves. Furthermore, suitable implementations of sparse approximate
 inverse preconditioners have already proved their efficiency on a single GPU (see, e.g.,
-\cite{BERTACCINI2016693, Lukash:2012}). 
+\cite{BERTACCINI2016693,Lukash:2012}). 
 In our work, the smoothers and local solvers are used within
 the AMG framework offered by the MLD2P4 package of preconditioners~\cite{mld-toms} 
 and exploiting sparse matrix data structures and Krylov solvers from the PSBLAS library~\cite{psblas3}. 
-We conducted an extensive set of weak scalability tests on the JURECA supercomputer at the JŸlich Supercomputing Centre (JSC), 
+We conducted an extensive set of weak scalability tests on the JURECA supercomputer at the J\"ulich Supercomputing Centre (JSC), 
 using a groundwater modelling application developed at JSC. 
 To quantify the gain in efficiency and performance using the cluster of GPUs, we also ran tests only on CPUs. 
 Our results show scalability up to 128 GPUs and 256 millions equations.
 
 %and are analyzed in terms of both execution speed and algorithmic scalability.
 To the best of our knowledge, the selected AMG smoothers and local solvers have not been
-considered in other AMG preconditioners tailored for GPUs \cite{} \textbf{Aggiungere biblio:
-Bell, Dalton, Olson; Park, Smelianskiy, Yang, ...; Rupp, Weinbub}.
+considered in other AMG preconditioners tailored for GPUs~\cite{BellDaltonOlson:2012}. 
 
-\textbf{V: spostare nelle conclusioni?} 
+%\textbf{Aggiungere biblio:
+%Bell, Dalton, Olson; Park, Smelianskiy, Yang, ...; Rupp, Weinbub}. 
+
+Furthermore, most results have been so far presented on a single GPU; 
+for example, Richter et al.~\cite{Richter:2014} presented the implementation for discrete elliptic field problems 
+using the CUSP library. 
+
 In this work, we do not consider the setup phase of the preconditioner,
 which will be the subject of future work. 
 Of course, an efficient AMG setup on multiple GPUs is important for the overall efficiency of the
