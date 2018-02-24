@@ -8,60 +8,85 @@
 %they are at the focus of many research efforts revolving around the
 %efficient implementation of scientific software, including solvers for
 %sparse linear system of equations. 
+For our current purposes we are interested in the GPU implementation
+of Krylov iterative methods; the essential ingredients that we need to 
+look at are therefore:
+\begin{itemize}
+\item Vector-vector operations, such as dot products, norms and scaled
+  vector sums;
+\item Sparse matrix by vector products;
+\item Preconditioning.
+\end{itemize}
+The vector operations are quite simple and well understood; they are
+memory-bound operations, and practically all  of them are already
+defined for serial computation in the context of the
+BLAS~\cite{BLAS1,BLAS3}.  
 
-As previously mentioned, implementing the
-solution of sparse triangular systems on GPUs is very difficult.
+The single most important kernel is the product of a sparse matrix by
+a vector that lies at the heart of the construction of Krylov
+subspaces; its efficient implementation is therefore the subject of an
+immense amount of research. It is well known that the SpMV kernel is
+memory-bound and  its bandwidth usage  is strongly dependent on both
+the input matrix and on the underlying computing
+platform(s). Additional issues arise when we want to implement it on a
+GPU device; a discussion of the software design issues and of the
+techniques we employ is available in~\cite{CaFiRo:2014,PSBLAS3}, and
+for a detailed survey of SpMV implementations on GPUs 
+see~\cite{Filippone:2017:SMM:3034774.3017994}. 
+
+Preconditioning strategies are immensely varied, and this is reflected
+in the analysis of the computational kernels they employ. 
+As previously mentioned, many efficient serial preconditioners need the
+solution of sparse triangular systems; unfortunately, implementing
+sparse triangular solvers   on GPUs is very difficult.
 As an example, the conjugate gradient preconditioned with the incomplete
 LU available in CUDA CuSPARSE since version 4.0 
 is reported in~\cite{Naumov11} as achieving at best a speedup factor
-of about 2 over a standard CPU implementation. The main reason is that
-the GPU requires a massive amount of data parallelism to be exploited,
-and in the sparse triangular factors the amount of available
-parallelism is limited by the sparsity. It is therefore appealing to
+of about 2 over a standard CPU implementation, but very often showing
+no speedup at all. The main reason is that the GPU requires a massive
+amount of data parallelism to be exploited,  and in the sparse
+triangular factors the amount of available parallelism is limited by
+the sparsity of the matrix; moving towards a denser matrix would
+improve the triangular solve, but would be  undesirable in terms of
+memory footprint, time to setup and time to apply the preconditioner.    
+
+Given that the sparse matrix-vector product is much more amenable to
+efficient implementations, it is quite  appealing to
 use preconditioners employing matrix-vector products as their main
-kernel, among them point-Jacobi iterations and sparse approximate inverses.
-For a discussion of sparse approximate inverses on GPUs 
-see~\cite{BERTACCINI2016693}. 
-
-It is well known that the SpMV kernel is memory-bound
-and  its bandwidth usage  is strongly dependent on both the input
-matrix and on the underlying computing platform(s). For a detailed
-overview of its implementation issues and a survey of available
-techniques on GPUs, see~\cite{Filippone:2017:SMM:3034774.3017994}.
-\textbf{Sembra quasi che SpMV non sia utile, mentre andrebbe valorizzato, perche' e'
-il kernel centrale nei metodi di Krylov e nell'AMG qui considerato.}
-
-The implementation of the AMG preconditioners for which we 
+kernel. Our multilevel precondioners are suitable because:
+\begin{itemize}
+\item They employ matrix-vector oprators to transfer data between
+  levels;
+\item They have a flexible architecture allowing the use of suitable
+  \emph{local solvers},  such as point-Jacobi iterations and sparse
+  approximate inverses, which themselves rely on matrix-vector
+  products and vector operations.
+\end{itemize}
+The implementation of the AMG preconditioners for which we will
 present results in this paper is based on MLD2P4~\cite{mld-toms} and
-PSBLAS~\cite{psblas3}. Thanks to the modular architecture of both
+PSBLAS~\cite{PSBLAS3}. Thanks to the modular architecture of both
 packages, it is possible to define \emph{plugins} for 
 \begin{itemize}
 \item operators on the GPU, including sparse matrix-vector product
-  supporting multiple storage formats and vector-vector operations;
+  supporting multiple storage formats and vector-vector operations~\cite{CaFiRo:2014};
 \item approximate inverses as local solvers.
 \end{itemize}
-By combining these ingredients in a multilevel framework we can obtain
-interesting scalability results. 
+A review  of sparse approximate inverses on GPUs is available
+in~\cite{BERTACCINI2016693}, and some initial experience with
+approximate inverses on GPUs was detailed in~\cite{BerFil:13}. 
 
-\textbf{Mi sembra che di seguito ci soffermiamo piu' sugli ostacoli che sui benefici dell'implementazione
-basata sul prodotto mat-vet. Sarebbe imnteressante dire qualcosa in piu' sull'implementazione, anche se matvet e ainv sono gia' stati spiegati in un altro paper.}
-Three additional practical obstacles must be mentioned here. 
-First of all,  because the allocation of memory
-on the GPU is an expensive synchronization point,  the
-memory space for internal work areas must be preallocated for all
-invocations  of the preconditioner; allocation of auxiliary data areas at
-each invocation of the prevonditioner is perfectly doable on the CPU
-side, but not  on the GPU. 
 
-The second issue has to do with the implementation of the
+Two limiting factors affect the efficiency of multilevel
+preconditioners on clusters of GPUs. 
+The first issue has to do with the implementation of the
 matrix-vector product on the GPU: as mentioned
 in~\cite{Filippone:2017:SMM:3034774.3017994}, to run at full speed on
 the GPU, the matrices must be  sufficiently large to keep all
-computing units busy, and this is very difficult at the coarse level
-of the preconditioner hierarchy because the size of the aggregates is
-small. 
+computing units busy, and this becomes increasingly difficult as we go
+through the hierarchy levels because the discretization space becomes
+smaller. 
 
-The third issue is related to the efficiency of communication between
+The second issue is related to the efficiency of communication between
 the various computing nodes; to proceed with the computation of the
 matrix-vector product in parallel between the different nodes, it is
 necessary to exchange the data of the \emph{halo}. For good data
@@ -69,8 +94,12 @@ partitions, the amount of data to be exchanged displays a
 surface-to-volume effect, and therefore large products can be computed
 effectively; however when moving between different levels of the
 preconditioning hierarchy we are precisely going towards smaller
-matrices, hence the surface-to-volume ratio and the efficiency of the
-parallelization decreases. % The speed ratio of the GPU with respect to
+matrices, hence the commmunications to computations  ratio and the
+efficiency of the parallelization decreases. Note that we most often
+use \emph{smoothed} aggregation, which improves the convergence
+features, but has the negative side effect of increasing
+communication. 
+% The speed ratio of the GPU with respect to 
 % the CPU only makes things worse; again, it may be necessary to limit
 % the number of levels to less than what would be efficient when using
 % CPUs. 

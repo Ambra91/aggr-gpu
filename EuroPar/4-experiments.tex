@@ -3,8 +3,7 @@
 We illustrate the behaviour of the MG preconditioner for GPUs described so far,
 which exploits the INVK sparse approximate inverse solver. This approximate
 inverse is obtained by the inversion of triangular
-factors based on a positional drop strategy.
-\textbf{reference}.
+factors based on a positional drop strategy~\cite{vanDuin:99,BERTACCINI2016693}.
 In particular, we show the results obtained on a linear system
 arisen from a groundwater modelling application developed at the
 J\"ulich Supercomputing Centre (JSC), concerning the numerical simulation
@@ -16,7 +15,9 @@ of the equation performed by a cell-centered finite column scheme
 entries distributed over seven diagonals. In these tests, we will
 consider a homogeneous permeability tensor;  this application comes
 from the framework of the Horizon 2020 EoCoE Project (Grant
-676629). 
+676629). The equations are discretized over the unit cube; the
+computational domain is partitioned by repeated sectioning along
+coordinate planes. 
 
 We performed weak scalability tests using approximately 2 millions
 equations per process; thus  the total dimension ranges from 2
@@ -50,7 +51,7 @@ allows us to quantify the gain in efficiency in using GPUs.
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=.9\textwidth]{graf_solve_1.png}
+\includegraphics[width=\textwidth]{graf_solve_1.png}
 \end{center}
 \caption{Weak scalability, solve time\label{fig:solve_time}}
 \end{figure}
@@ -78,10 +79,10 @@ we see that the time per iteration with the GPUs has a very flat profile between
 and 64 nodes; this reflects a very good weak scalability within each
 iteration of the method.
 
- However, to translate this into a flat
-solution time, it is necessary that the number of iterations remains
-constant. To get a complete picture it is necessary to look in detail
-at  Tables~\ref{gpu-invk} and~\ref{gpu-jac}. In the tables, we show
+ However to translate this into a flat
+solution time it is necessary that the number of iterations remains
+constant; let us then turn our attention to the Tables~\ref{gpu-invk}
+and~\ref{gpu-jac}. In the tables, we show 
 respectively the number of processing elements (CPU cores or GPU
 devices), the number of levels in the multilevel hierarchy, the time
 for setup in seconds, then the time to solution and time per iteration
@@ -92,7 +93,7 @@ setup process is currently executed  on CPUs; in all cases, the number
 of iterations to convergence is identical on CPUs and GPUs. 
 
 There are two lines for the tests at 128 devices in each table. 
-The first line is obtained letting the aggregation algorithm run with
+The first line is obtained by letting the aggregation algorithm run with
 default arguments; in this case the preconditioner uses a hierarchy
 with 5 levels and achieves a number of iterations equal to or less than
 that for 32 and 64 devices, but because there are 5 levels, the time
@@ -110,6 +111,9 @@ Additional work will be required to design aggregation
 strategies capable of obtaining a better trade-off with as little user
 intervention as possible; some possible directions are outlined
 in~\cite{bcm-toms}.  
+
+
+
 
 \iffalse
 \begin{table}[h!]
@@ -268,9 +272,9 @@ NP  & Levels & Iters & Tsetup & Tsolve & T/iter & Tsolve & T/iter  & Speedup\\
 % When GPUs are used, the last column shows the speed-up of the solver
 % phase on the gpu with respect to the cpu solve time.
 The GPU/CPU speed-up achieves a maximum value of 10 in the case of 8
-processes and it achieves a value between  5 and 7  with 128
+processes and it achieves a value between  5 and 9  with 128
 processes. The  increasing number of levels leads to a decreasing in
-the size of the coarsest level matrix which decreases performance for
+the size of the coarsest level matrix which affects performance for
 two reasons, first because the matrices at the coarse level are too
 small to make good use of the GPU device computational power, and also
 because the communication to computation ratio gets worse.
