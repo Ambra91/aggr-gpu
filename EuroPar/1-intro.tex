@@ -14,8 +14,10 @@ and specifically in the test cases discussed in this paper, the matrix
 $A$ is also symmetric and positive definite. 
 
 The solution of such systems is achieved by using either direct or iterative methods. 
-However, for large and sparse linear systems, direct methods are  difficult to implement in parallelbecause of their recursive nature and often suffer from high computational complexity~\cite{Templates}.  
-Therefore, a more viable alternative is to use iterative solvers and Krylovsubspace methods are the most widely used class of these solvers~\cite{MR1990645}. 
+However, for large and sparse linear systems, direct methods are  difficult to implement in parallel
+because of their recursive nature and often suffer from high computational complexity~\cite{Templates}.  
+Therefore, a more viable alternative is to use iterative solvers and Krylov
+subspace methods are the most widely used class of these solvers~\cite{MR1990645}. 
 %The most widely used solvers for systems of this type are Krylov subspace methods~\cite{MR1990645}.
 Their time to solution is determined by the number
 of iterations performed and by the time per iteration, and hence their 
@@ -66,7 +68,7 @@ in sparse triangular solves. Furthermore, suitable implementations of sparse app
 inverse preconditioners have already proved their efficiency on a single GPU (see, e.g.,
 \cite{BERTACCINI2016693,Lukash:2012}). 
 In our work, the smoothers and local solvers are used within
-the AMG framework offered by the MLD2P4 package of preconditioners~\cite{mld-toms} 
+the AMG framework offered by the MLD2P4 package of preconditioners~\cite{mld-toms,Dambra:2007} 
 and exploiting sparse matrix data structures and Krylov solvers from
 the PSBLAS  library~\cite{PSBLAS3}. 
 We conducted an extensive set of weak scalability tests on the JURECA supercomputer at the J\"ulich Supercomputing Centre (JSC), 
@@ -74,13 +76,14 @@ using a groundwater modelling application developed at JSC.
 To quantify the gain in efficiency and performance using the cluster of GPUs, we also ran tests only on CPUs. 
 Our results show scalability up to 128 GPUs and 256 millions equations.
 
-%and are analyzed in terms of both execution speed and algorithmic scalability.
-To the best of our knowledge, the selected AMG smoothers and local solvers have not been
-considered in other AMG preconditioners tailored for GPUs~\cite{BellDaltonOlson:2012, }. 
-
+%and are analyzed in terms of both execution speed and algorithmic scalability. 
+Some research efforts have been devoted to study the computation of preconditions on GPUs, e.g.,~\cite{Dehnavi:2013}, 
+showing the acceleration that can be achieved by exploiting GPUs. 
+%
+To the best of our knowledge, the selected AMG smoothers and local solvers we employ in they work 
+have not been considered in other AMG preconditioners tailored for GPUs~\cite{BellDaltonOlson:2012}. 
 %\textbf{Aggiungere biblio:
 %Bell, Dalton, Olson; Park, Smelianskiy, Yang, ...; Rupp, Weinbub}. 
-
 Furthermore, most results have been so far presented on a single GPU; 
 for example, Richter et al.~\cite{Richter:2014} presented the implementation for discrete elliptic field problems 
 using the CUSP library. 
