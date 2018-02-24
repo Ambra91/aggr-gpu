@@ -99,9 +99,10 @@ with 5 levels and achieves a number of iterations equal to or less than
 that for 32 and 64 devices, but because there are 5 levels, the time
 per iteration deteriorates.  In the second line, we force the
 preconditioner to use 4 levels, in which case the time per iteration
-remains essentially constant, but the number of iterations
-increases. Nevertheless, in both configurations, the best solution
-time is obtained with 4 levels. 
+remains essentially constant on the GPU and very close on the CPU, but
+the number of iterations increases. In both
+configurations the best solution time on the GPU is obtained with 4
+levels, whereas the CPU version is faster with 5 levels. 
 
 In summary, the aggregation algorithm is capable of obtaining very
 good algorithmic scalability, but in some cases at the expense of time
@@ -273,7 +274,7 @@ NP  & Levels & Iters & Tsetup & Tsolve & T/iter & Tsolve & T/iter  & Speedup\\
 % phase on the gpu with respect to the cpu solve time.
 The GPU/CPU speed-up achieves a maximum value of 10 in the case of 8
 processes and it achieves a value between  5 and 9  with 128
-processes. The  increasing number of levels leads to a decreasing in
+processes. The  increasing number of levels leads to a decrease in
 the size of the coarsest level matrix which affects performance for
 two reasons, first because the matrices at the coarse level are too
 small to make good use of the GPU device computational power, and also
